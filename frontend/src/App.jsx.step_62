@@ -1,0 +1,838 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  FaSearch, 
+  FaUser, 
+  FaHeart, 
+  FaShoppingCart, 
+  FaBars, 
+  FaEnvelope, 
+  FaFacebookF, 
+  FaTwitter, 
+  FaLinkedinIn, 
+  FaInstagram, 
+  FaYoutube, 
+  FaChevronDown, 
+  FaPaperPlane, 
+  FaGlobe, 
+  FaBox, 
+  FaShieldAlt, 
+  FaTimes, 
+  FaCommentDots, 
+  FaApple, 
+  FaPlay, 
+  FaMapMarkerAlt 
+} from 'react-icons/fa';
+import { 
+  categories, 
+  dealsOffers, 
+  homeOutdoor, 
+  consumerElectronics, 
+  recommendedItems, 
+  extraServices, 
+  suppliers 
+} from './data';
+
+function App() {
+  // --- STATE MANAGEMENT ---
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All category');
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
+  
+  // Mobile Nav Drawer
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Language & Currency Dropdowns
+  const [language, setLanguage] = useState('English, USD');
+  const [shipTo, setShipTo] = useState('Germany');
+  const [langDropdownOpen, setLangDropdownOpen] = useState(false);
+  const [shipDropdownOpen, setShipDropdownOpen] = useState(false);
+
+  // Inquiry Form State
+  const [inquiryForm, setInquiryForm] = useState({
+    itemName: '',
+    details: '',
+    quantity: '',
+    unit: 'Pcs'
+  });
+  const [inquirySubmitted, setInquirySubmitted] = useState(false);
+
+  // Countdown Timer State (Target: 4 days, 13 hours, 34 mins, 56 secs from load)
+  const [timeLeft, setTimeLeft] = useState({
+    days: 4,
+    hours: 13,
+    minutes: 34,
+    seconds: 56
+  });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev.seconds > 0) {
+          return { ...prev, seconds: prev.seconds - 1 };
+        } else if (prev.minutes > 0) {
+          return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
+        } else if (prev.hours > 0) {
+          return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 };
+        } else if (prev.days > 0) {
+          return { ...prev, days: prev.days - 1, hours: 23, minutes: 59, seconds: 59 };
+        } else {
+          clearInterval(timer);
+          return prev;
+        }
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  // Form submit handler
+  const handleInquirySubmit = (e) => {
+    e.preventDefault();
+    if (!inquiryForm.itemName || !inquiryForm.quantity) {
+      alert('Please fill out the item name and quantity.');
+      return;
+    }
+    setInquirySubmitted(true);
+    setTimeout(() => {
+      setInquirySubmitted(false);
+      setInquiryForm({ itemName: '', details: '', quantity: '', unit: 'Pcs' });
+    }, 5000);
+  };
+
+  return (
+    <div className="min-h-screen bg-brand-bg text-[#1C1C1C] font-sans antialiased">
+      
+      {/* ---------------- 1. TOP HEADER BAR ---------------- */}
+      <header className="bg-white border-b border-brand-border sticky top-0 z-50">
+        <div className="max-w-[1200px] mx-auto px-4 py-4 flex items-center justify-between gap-4">
+          
+          {/* Logo */}
+          <div className="flex items-center gap-2 flex-shrink-0 cursor-pointer">
+            <div className="w-10 h-10 bg-brand-blue rounded-md flex items-center justify-center text-white text-xl">
+              <FaShoppingCart />
+            </div>
+            <span className="text-2xl font-bold text-brand-blue tracking-tight">Brand</span>
+          </div>
+
+          {/* Search Bar (Desktop) */}
+          <div className="hidden md:flex flex-grow max-w-[640px] items-center border-2 border-brand-blue rounded-lg overflow-hidden h-10 bg-white">
+            <input 
+              type="text" 
+              placeholder="Search" 
+              className="px-4 py-2 flex-grow outline-none text-sm w-full"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {/* Category Dropdown */}
+            <div className="relative border-l border-brand-border h-full flex items-center px-4 bg-white text-sm text-[#1C1C1C] cursor-pointer" onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}>
+              <span className="mr-2 select-none">{selectedCategory}</span>
+              <FaChevronDown className="text-gray-400 text-xs" />
+              {categoryDropdownOpen && (
+                <div className="absolute top-11 right-0 bg-white border border-brand-border rounded-md shadow-lg py-1 w-48 z-10">
+                  <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => { setSelectedCategory('All category'); setCategoryDropdownOpen(false); }}>All category</div>
+                  {categories.map((cat, idx) => (
+                    <div key={idx} className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => { setSelectedCategory(cat); setCategoryDropdownOpen(false); }}>{cat}</div>
+                  ))}
+                </div>
+              )}
+            </div>
+            {/* Search Button */}
+            <button className="bg-brand-blue hover:bg-[#0f6fd6] text-white px-8 h-full font-medium transition-colors text-sm">
+              Search
+            </button>
+          </div>
+
+          {/* User Actions (Desktop/Mobile Icons) */}
+          <div className="flex items-center gap-6 text-gray-500">
+            <div className="flex flex-col items-center cursor-pointer hover:text-brand-blue transition-colors">
+              <FaUser className="text-xl" />
+              <span className="text-xs hidden md:block mt-1">Profile</span>
+            </div>
+            <div className="flex flex-col items-center cursor-pointer hover:text-brand-blue transition-colors">
+              <FaCommentDots className="text-xl" />
+              <span className="text-xs hidden md:block mt-1">Message</span>
+            </div>
+            <div className="flex flex-col items-center cursor-pointer hover:text-brand-blue transition-colors">
+              <FaHeart className="text-xl" />
+              <span className="text-xs hidden md:block mt-1">Orders</span>
+            </div>
+            <div className="flex flex-col items-center cursor-pointer hover:text-brand-blue transition-colors relative">
+              <FaShoppingCart className="text-xl text-gray-600" />
+              <span className="text-xs hidden md:block mt-1">My cart</span>
+              <span className="absolute -top-1.5 -right-2 bg-brand-blue text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">3</span>
+            </div>
+            {/* Hamburger (Mobile) */}
+            <button 
+              className="md:hidden text-2xl text-[#1C1C1C]"
+              onClick={() => setIsMobileMenuOpen(true)}
+            >
+              <FaBars />
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Search Bar */}
+        <div className="md:hidden px-4 pb-3">
+          <div className="flex items-center border border-brand-border rounded-lg overflow-hidden h-10 bg-[#F7F7F7]">
+            <FaSearch className="text-gray-400 ml-3 mr-2" />
+            <input 
+              type="text" 
+              placeholder="Search" 
+              className="bg-transparent flex-grow outline-none text-sm py-2"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </div>
+      </header>
+
+      {/* ---------------- 2. NAVIGATION BAR ---------------- */}
+      <nav className="bg-white border-b border-brand-border py-3 hidden md:block">
+        <div className="max-w-[1200px] mx-auto px-4 flex items-center justify-between text-sm font-medium">
+          
+          {/* Left links */}
+          <div className="flex items-center gap-6">
+            <button className="flex items-center gap-2 text-[#1C1C1C] hover:text-brand-blue">
+              <FaBars />
+              <span>All category</span>
+            </button>
+            <a href="#" className="text-[#1C1C1C] hover:text-brand-blue">Hot offers</a>
+            <a href="#" className="text-[#1C1C1C] hover:text-brand-blue">Gift boxes</a>
+            <a href="#" className="text-[#1C1C1C] hover:text-brand-blue">Projects</a>
+            <a href="#" className="text-[#1C1C1C] hover:text-brand-blue">Menu item</a>
+            <a href="#" className="text-[#1C1C1C] hover:text-brand-blue">Help</a>
+          </div>
+
+          {/* Right Selectors */}
+          <div className="flex items-center gap-6">
+            {/* Language/Currency selector */}
+            <div className="relative">
+              <button 
+                className="flex items-center gap-1.5 hover:text-brand-blue"
+                onClick={() => setLangDropdownOpen(!langDropdownOpen)}
+              >
+                <span>{language}</span>
+                <FaChevronDown className="text-xs text-gray-400" />
+              </button>
+              {langDropdownOpen && (
+                <div className="absolute top-7 right-0 bg-white border border-brand-border rounded-md shadow-lg py-1 w-36 z-20">
+                  <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => { setLanguage('English, USD'); setLangDropdownOpen(false); }}>English, USD</div>
+                  <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => { setLanguage('Deutsch, EUR'); setLangDropdownOpen(false); }}>Deutsch, EUR</div>
+                  <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => { setLanguage('Français, EUR'); setLangDropdownOpen(false); }}>Français, EUR</div>
+                </div>
+              )}
+            </div>
+
+            {/* Ship to Selector */}
+            <div className="relative">
+              <button 
+                className="flex items-center gap-1.5 hover:text-brand-blue"
+                onClick={() => setShipDropdownOpen(!shipDropdownOpen)}
+              >
+                <span>Ship to</span>
+                <span className="text-base">{shipTo === 'Germany' ? '🇩🇪' : shipTo === 'United States' ? '🇺🇸' : '🇨🇳'}</span>
+                <FaChevronDown className="text-xs text-gray-400" />
+              </button>
+              {shipDropdownOpen && (
+                <div className="absolute top-7 right-0 bg-white border border-brand-border rounded-md shadow-lg py-1 w-36 z-20">
+                  <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2" onClick={() => { setShipTo('Germany'); setShipDropdownOpen(false); }}>
+                    <span>🇩🇪</span> Germany
+                  </div>
+                  <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2" onClick={() => { setShipTo('United States'); setShipDropdownOpen(false); }}>
+                    <span>🇺🇸</span> USA
+                  </div>
+                  <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2" onClick={() => { setShipTo('China'); setShipDropdownOpen(false); }}>
+                    <span>🇨🇳</span> China
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Mobile Nav Sidebar/Drawer */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-50 flex">
+          {/* Overlay */}
+          <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setIsMobileMenuOpen(false)}></div>
+          
+          {/* Drawer Body */}
+          <div className="relative w-72 max-w-sm bg-white h-full shadow-xl z-10 flex flex-col p-5">
+            <div className="flex items-center justify-between border-b pb-4 mb-4">
+              <span className="text-lg font-bold text-brand-blue">Menu Categories</span>
+              <button className="text-xl text-gray-600" onClick={() => setIsMobileMenuOpen(false)}>
+                <FaTimes />
+              </button>
+            </div>
+            
+            {/* Navigation items in drawer */}
+            <div className="flex-grow overflow-y-auto space-y-4">
+              <div className="font-semibold text-xs text-gray-400 uppercase tracking-wider">Main Links</div>
+              <div className="space-y-2.5">
+                <a href="#" className="block py-1 hover:text-brand-blue font-medium">Hot offers</a>
+                <a href="#" className="block py-1 hover:text-brand-blue font-medium">Gift boxes</a>
+                <a href="#" className="block py-1 hover:text-brand-blue font-medium">Projects</a>
+                <a href="#" className="block py-1 hover:text-brand-blue font-medium">Menu item</a>
+                <a href="#" className="block py-1 hover:text-brand-blue font-medium">Help</a>
+              </div>
+              
+              <div className="border-t pt-4"></div>
+              
+              <div className="font-semibold text-xs text-gray-400 uppercase tracking-wider mb-2">Categories</div>
+              <div className="space-y-2">
+                {categories.map((cat, idx) => (
+                  <a href="#" key={idx} className="block py-1 text-gray-700 hover:text-brand-blue text-sm">{cat}</a>
+                ))}
+              </div>
+
+              <div className="border-t pt-4"></div>
+
+              <div className="font-semibold text-xs text-gray-400 uppercase tracking-wider mb-2">Settings</div>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center text-sm">
+                  <span>Language</span>
+                  <select className="border border-brand-border rounded px-2 py-0.5" value={language} onChange={(e) => setLanguage(e.target.value)}>
+                    <option value="English, USD">English, USD</option>
+                    <option value="Deutsch, EUR">Deutsch, EUR</option>
+                  </select>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span>Ship to</span>
+                  <select className="border border-brand-border rounded px-2 py-0.5" value={shipTo} onChange={(e) => setShipTo(e.target.value)}>
+                    <option value="Germany">Germany 🇩🇪</option>
+                    <option value="United States">USA 🇺🇸</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Main Container */}
+      <main className="max-w-[1200px] mx-auto px-4 py-5 space-y-6">
+
+        {/* ---------------- 3. HERO SECTION ---------------- */}
+        <section className="bg-white border border-brand-border rounded-lg p-4 grid grid-cols-1 lg:grid-cols-4 gap-4 card-shadow">
+          
+          {/* Left Column: Categories List */}
+          <div className="hidden lg:block col-span-1">
+            <ul className="space-y-1">
+              {categories.map((cat, idx) => (
+                <li key={idx}>
+                  <a 
+                    href="#" 
+                    className={`block px-3 py-2 text-sm rounded-md transition-colors ${
+                      idx === 0 
+                        ? 'bg-brand-blueLight text-brand-blue font-semibold' 
+                        : 'text-gray-600 hover:bg-gray-100 hover:text-[#1C1C1C]'
+                    }`}
+                  >
+                    {cat}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Center Column: Banner */}
+          <div className="col-span-1 lg:col-span-2 bg-brand-mint rounded-lg p-8 relative flex flex-col justify-between overflow-hidden min-h-[300px] lg:min-h-full">
+            {/* Circular graphics for aesthetics */}
+            <div className="absolute right-[-100px] bottom-[-100px] w-[350px] h-[350px] rounded-full bg-white bg-opacity-20 z-0"></div>
+            <div className="absolute right-[-50px] top-[-50px] w-[200px] h-[200px] rounded-full bg-white bg-opacity-15 z-0"></div>
+            
+            <div className="z-10 max-w-[220px] sm:max-w-[320px]">
+              <h3 className="text-lg sm:text-xl font-medium text-[#1D3178] mb-1">Latest trending</h3>
+              <h2 className="text-2xl sm:text-3xl font-bold text-[#1C1C1C] leading-tight mb-5">Electronic items</h2>
+              <button className="bg-white hover:bg-gray-50 text-[#1C1C1C] font-semibold px-4 py-2 rounded-md shadow-sm transition-transform hover:scale-105 duration-200 text-sm">
+                Learn more
+              </button>
+            </div>
+            
+            {/* Banner product image */}
+            <div className="absolute right-4 bottom-4 w-40 sm:w-56 lg:w-48 xl:w-56 z-10">
+              <img 
+                src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&auto=format&fit=crop&q=80" 
+                alt="Headphones" 
+                className="w-full object-contain filter drop-shadow-xl" 
+              />
+            </div>
+          </div>
+
+          {/* Right Column: User Cards */}
+          <div className="col-span-1 flex flex-col sm:flex-row lg:flex-col gap-3">
+            {/* Greeting Card */}
+            <div className="bg-brand-blueLight rounded-lg p-4 flex-grow flex flex-col justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-full bg-[#A2C7FF] flex items-center justify-center text-white text-lg">
+                  <FaUser />
+                </div>
+                <div className="text-sm font-medium text-[#1C1C1C] leading-snug">
+                  Hi, user <br />
+                  let's get started
+                </div>
+              </div>
+              <div className="mt-4 space-y-2">
+                <button className="w-full bg-brand-blue hover:bg-[#0f6fd6] text-white text-xs py-2 rounded-md font-semibold transition-colors">
+                  Join now
+                </button>
+                <button className="w-full bg-white hover:bg-gray-50 border border-brand-border text-brand-blue text-xs py-2 rounded-md font-semibold transition-colors">
+                  Log in
+                </button>
+              </div>
+            </div>
+
+            {/* Discount Card */}
+            <div className="bg-brand-orange rounded-lg p-4 flex-grow text-white flex flex-col justify-between min-h-[90px]">
+              <p className="text-xs leading-normal font-medium">
+                Get US $10 off <br /> with a new supplier
+              </p>
+            </div>
+
+            {/* Send quotes Card */}
+            <div className="bg-[#55BDC3] rounded-lg p-4 flex-grow text-white flex flex-col justify-between min-h-[90px]">
+              <p className="text-xs leading-normal font-medium">
+                Send quotes with supplier <br /> preferences
+              </p>
+            </div>
+          </div>
+        </section>
+
+
+        {/* ---------------- 4. DEALS AND OFFERS SECTION ---------------- */}
+        <section className="bg-white border border-brand-border rounded-lg flex flex-col lg:flex-row overflow-hidden card-shadow">
+          
+          {/* Info & Timer Column */}
+          <div className="p-5 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-brand-border lg:w-[280px] flex-shrink-0">
+            <div>
+              <h3 className="text-lg font-bold text-[#1C1C1C] mb-1">Deals and offers</h3>
+              <p className="text-sm text-gray-500 mb-4 font-medium">Hygiene equipments</p>
+            </div>
+            
+            {/* Timer Box Grid */}
+            <div className="flex gap-2 mb-2">
+              <div className="bg-[#606C80] rounded px-2.5 py-1.5 text-center min-w-[48px] text-white">
+                <span className="block text-base font-bold leading-none">{String(timeLeft.days).padStart(2, '0')}</span>
+                <span className="text-[10px] opacity-75 font-normal">Days</span>
+              </div>
+              <div className="bg-[#606C80] rounded px-2.5 py-1.5 text-center min-w-[48px] text-white">
+                <span className="block text-base font-bold leading-none">{String(timeLeft.hours).padStart(2, '0')}</span>
+                <span className="text-[10px] opacity-75 font-normal">Hour</span>
+              </div>
+              <div className="bg-[#606C80] rounded px-2.5 py-1.5 text-center min-w-[48px] text-white">
+                <span className="block text-base font-bold leading-none">{String(timeLeft.minutes).padStart(2, '0')}</span>
+                <span className="text-[10px] opacity-75 font-normal">Min</span>
+              </div>
+              <div className="bg-[#606C80] rounded px-2.5 py-1.5 text-center min-w-[48px] text-white">
+                <span className="block text-base font-bold leading-none">{String(timeLeft.seconds).padStart(2, '0')}</span>
+                <span className="text-[10px] opacity-75 font-normal">Sec</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Horizontally Scrollable / Grid of Product Cards */}
+          <div className="flex-grow flex overflow-x-auto no-scrollbar divide-x divide-brand-border">
+            {dealsOffers.map((item) => (
+              <div key={item.id} className="min-w-[150px] sm:min-w-[180px] flex-grow flex flex-col items-center justify-center p-5 text-center group cursor-pointer hover:bg-gray-50 transition-colors">
+                <div className="h-28 w-28 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform duration-200">
+                  <img src={item.image} alt={item.name} className="max-h-full max-w-full object-contain" />
+                </div>
+                <h4 className="text-sm font-medium text-gray-700 mb-2 truncate max-w-full">{item.name}</h4>
+                <span className="bg-red-100 text-red-600 text-xs font-bold px-2.5 py-0.5 rounded-full">
+                  {item.discount}
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+
+        {/* ---------------- 5. HOME & OUTDOOR BANNER + PRODUCT GRID ---------------- */}
+        <section className="bg-white border border-brand-border rounded-lg flex flex-col lg:flex-row overflow-hidden card-shadow">
+          
+          {/* Left promotional banner */}
+          <div className="relative p-6 bg-cover bg-center text-[#1C1C1C] flex flex-col justify-between min-h-[200px] lg:w-[280px] flex-shrink-0" 
+               style={{ backgroundImage: `linear-gradient(rgba(255, 230, 204, 0.9), rgba(255, 230, 204, 0.9)), url('https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&q=60')` }}>
+            <div>
+              <h3 className="text-lg font-bold max-w-[140px] leading-tight mb-4">Home and outdoor</h3>
+              <button className="bg-white hover:bg-gray-50 text-[#1C1C1C] font-semibold text-sm px-4 py-2 rounded-md shadow-sm transition-transform hover:scale-105 duration-200">
+                Source now
+              </button>
+            </div>
+            
+            {/* Small subtle background graphic indicator */}
+            <div className="absolute right-4 bottom-4 opacity-20">
+              <FaBox size={80} />
+            </div>
+          </div>
+
+          {/* Right Product Grid */}
+          <div className="flex-grow grid grid-cols-2 sm:grid-cols-4 border-l border-brand-border">
+            {homeOutdoor.map((item) => (
+              <div key={item.id} className="p-4 border-b border-r border-brand-border flex justify-between gap-2 hover:bg-gray-50 transition-colors cursor-pointer group">
+                <div className="flex flex-col justify-between">
+                  <span className="text-sm font-medium text-[#1C1C1C] truncate max-w-[110px]">{item.name}</span>
+                  <div className="mt-1">
+                    <span className="text-xs text-gray-400 block">From</span>
+                    <span className="text-xs text-gray-500 font-semibold">USD {item.price}</span>
+                  </div>
+                </div>
+                <div className="w-16 h-16 flex-shrink-0 self-end group-hover:scale-105 transition-transform duration-200">
+                  <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded-md" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+
+        {/* ---------------- 6. CONSUMER ELECTRONICS BANNER + PRODUCT GRID ---------------- */}
+        <section className="bg-white border border-brand-border rounded-lg flex flex-col lg:flex-row overflow-hidden card-shadow">
+          
+          {/* Left promotional banner */}
+          <div className="relative p-6 bg-cover bg-center text-[#1C1C1C] flex flex-col justify-between min-h-[200px] lg:w-[280px] flex-shrink-0" 
+               style={{ backgroundImage: `linear-gradient(rgba(227, 240, 255, 0.9), rgba(227, 240, 255, 0.9)), url('https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=400&q=60')` }}>
+            <div>
+              <h3 className="text-lg font-bold max-w-[150px] leading-tight mb-4 font-sans">Consumer electronics and gadgets</h3>
+              <button className="bg-white hover:bg-gray-50 text-[#1C1C1C] font-semibold text-sm px-4 py-2 rounded-md shadow-sm transition-transform hover:scale-105 duration-200">
+                Source now
+              </button>
+            </div>
+            <div className="absolute right-4 bottom-4 opacity-20">
+              <FaShieldAlt size={80} />
+            </div>
+          </div>
+
+          {/* Right Product Grid */}
+          <div className="flex-grow grid grid-cols-2 sm:grid-cols-4 border-l border-brand-border">
+            {consumerElectronics.map((item) => (
+              <div key={item.id} className="p-4 border-b border-r border-brand-border flex justify-between gap-2 hover:bg-gray-50 transition-colors cursor-pointer group">
+                <div className="flex flex-col justify-between">
+                  <span className="text-sm font-medium text-[#1C1C1C] truncate max-w-[110px]">{item.name}</span>
+                  <div className="mt-1">
+                    <span className="text-xs text-gray-400 block">From</span>
+                    <span className="text-xs text-gray-500 font-semibold">USD {item.price}</span>
+                  </div>
+                </div>
+                <div className="w-16 h-16 flex-shrink-0 self-end group-hover:scale-105 transition-transform duration-200">
+                  <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded-md" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+
+        {/* ---------------- 7. SEND INQUIRY / SUPPLIER CTA SECTION ---------------- */}
+        <section className="rounded-lg bg-gradient-to-r from-[#127FFF] to-[#005ade] p-8 text-white flex flex-col lg:flex-row items-center justify-between gap-8 relative overflow-hidden card-shadow">
+          {/* Subtle industrial background pattern overlay */}
+          <div className="absolute inset-0 bg-cover bg-center opacity-10 bg-no-repeat pointer-events-none mix-blend-overlay"
+               style={{ backgroundImage: `url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&q=50')` }}></div>
+
+          {/* Left Text */}
+          <div className="z-10 max-w-[500px]">
+            <h2 className="text-2xl sm:text-3xl font-bold leading-tight mb-4">
+              An easy way to send requests to all suppliers
+            </h2>
+            <p className="text-sm sm:text-base text-blue-100 font-normal leading-relaxed">
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+            </p>
+          </div>
+
+          {/* Right Form Card */}
+          <div className="z-10 bg-white rounded-lg p-6 w-full max-w-[490px] text-[#1C1C1C] shadow-lg">
+            <h3 className="text-lg font-bold text-[#1C1C1C] mb-4">Send quote to suppliers</h3>
+            
+            {inquirySubmitted ? (
+              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-6 rounded-md text-center">
+                <span className="text-2xl block mb-2">🎉</span>
+                <h4 className="font-bold text-sm mb-1">Inquiry Sent Successfully!</h4>
+                <p className="text-xs text-green-600">Suppliers will contact you with quotes shortly.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleInquirySubmit} className="space-y-4">
+                {/* Item Name */}
+                <input 
+                  type="text" 
+                  placeholder="What item you need?" 
+                  className="w-full border border-brand-border rounded px-4 py-2 text-sm outline-none focus:border-brand-blue"
+                  value={inquiryForm.itemName}
+                  onChange={(e) => setInquiryForm({ ...inquiryForm, itemName: e.target.value })}
+                />
+                
+                {/* Details Textarea */}
+                <textarea 
+                  placeholder="Type more details" 
+                  rows="3"
+                  className="w-full border border-brand-border rounded px-4 py-2 text-sm outline-none focus:border-brand-blue resize-none"
+                  value={inquiryForm.details}
+                  onChange={(e) => setInquiryForm({ ...inquiryForm, details: e.target.value })}
+                />
+
+                {/* Quantity and units selection */}
+                <div className="flex gap-3">
+                  <input 
+                    type="number" 
+                    placeholder="Quantity" 
+                    className="w-1/2 border border-brand-border rounded px-4 py-2 text-sm outline-none focus:border-brand-blue"
+                    value={inquiryForm.quantity}
+                    onChange={(e) => setInquiryForm({ ...inquiryForm, quantity: e.target.value })}
+                  />
+                  <select 
+                    className="w-1/2 border border-brand-border rounded px-4 py-2 text-sm outline-none bg-white focus:border-brand-blue cursor-pointer"
+                    value={inquiryForm.unit}
+                    onChange={(e) => setInquiryForm({ ...inquiryForm, unit: e.target.value })}
+                  >
+                    <option value="Pcs">Pcs</option>
+                    <option value="Litres">Litres</option>
+                    <option value="Kg">Kg</option>
+                  </select>
+                </div>
+
+                {/* Submit button */}
+                <button 
+                  type="submit" 
+                  className="bg-brand-blue hover:bg-[#0f6fd6] text-white px-5 py-2.5 rounded-md font-semibold text-sm transition-colors"
+                >
+                  Send inquiry
+                </button>
+              </form>
+            )}
+          </div>
+        </section>
+
+
+        {/* ---------------- 8. RECOMMENDED ITEMS SECTION ---------------- */}
+        <section className="space-y-4">
+          <h3 className="text-xl font-bold text-[#1C1C1C]">Recommended items</h3>
+          
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {recommendedItems.map((item) => (
+              <div key={item.id} className="bg-white border border-brand-border rounded-lg p-4 card-shadow flex flex-col cursor-pointer group hover:shadow-md transition-all duration-200">
+                <div className="h-36 flex items-center justify-center mb-3 flex-shrink-0 overflow-hidden rounded-md">
+                  <img src={item.image} alt="product" className="max-h-full max-w-full object-cover group-hover:scale-105 transition-transform duration-200" />
+                </div>
+                <div className="flex-grow flex flex-col justify-between">
+                  <div>
+                    <span className="text-base font-bold text-[#1C1C1C]">{item.price}</span>
+                    <p className="text-xs text-gray-500 font-medium leading-relaxed mt-1 line-clamp-2">
+                      {item.description}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+
+        {/* ---------------- 9. OUR EXTRA SERVICES SECTION ---------------- */}
+        <section className="space-y-4">
+          <h3 className="text-xl font-bold text-[#1C1C1C]">Our extra services</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {extraServices.map((service) => (
+              <div key={service.id} className="bg-white border border-brand-border rounded-lg overflow-hidden flex flex-col card-shadow relative">
+                
+                {/* Image panel with grey overlay */}
+                <div className="h-32 bg-cover bg-center relative" style={{ backgroundImage: `url('${service.image}')` }}>
+                  <div className="absolute inset-0 bg-[#1C1C1C] opacity-35"></div>
+                </div>
+
+                {/* Bottom title panel */}
+                <div className="p-4 pt-6 relative bg-white flex-grow">
+                  
+                  {/* Floating Circular Icon */}
+                  <div className="absolute -top-7 right-6 w-12 h-12 rounded-full border-2 border-white bg-[#D1E7FF] flex items-center justify-center text-brand-blue shadow-sm">
+                    {service.icon === 'search' && <FaSearch />}
+                    {service.icon === 'box' && <FaBox />}
+                    {service.icon === 'send' && <FaPaperPlane />}
+                    {service.icon === 'shield' && <FaShieldAlt />}
+                  </div>
+
+                  <p className="text-sm font-semibold text-[#1C1C1C] pr-10 leading-snug">
+                    {service.title}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+
+        {/* ---------------- 10. SUPPLIERS BY REGION SECTION ---------------- */}
+        <section className="space-y-4">
+          <h3 className="text-xl font-bold text-[#1C1C1C]">Suppliers by region</h3>
+          
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-y-4 gap-x-6">
+            {suppliers.map((sup, idx) => (
+              <div key={idx} className="flex items-center gap-3 cursor-pointer group">
+                <span className="text-2xl filter drop-shadow-sm group-hover:scale-110 transition-transform duration-200">{sup.flag}</span>
+                <div>
+                  <span className="block text-sm font-medium text-[#1C1C1C] leading-none mb-1 group-hover:text-brand-blue transition-colors">
+                    {sup.country}
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    {sup.domain}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+      </main>
+
+      {/* ---------------- 11. NEWSLETTER SUBSCRIPTION BAR ---------------- */}
+      <section className="bg-[#EFF2F4] py-10 mt-10">
+        <div className="max-w-[1200px] mx-auto px-4 text-center">
+          <h3 className="text-xl font-bold text-[#1C1C1C] mb-1">Subscribe on our newsletter</h3>
+          <p className="text-sm text-gray-500 font-medium mb-6">
+            Get daily news on upcoming promotions and weekly best sellers
+          </p>
+
+          <form onSubmit={(e) => { e.preventDefault(); alert('Subscribed successfully!'); }} className="flex flex-col sm:flex-row max-w-[440px] mx-auto gap-2">
+            <div className="flex-grow flex items-center bg-white border border-brand-border rounded-lg px-3 py-2 text-sm">
+              <FaEnvelope className="text-gray-400 mr-2" />
+              <input 
+                type="email" 
+                placeholder="Email address" 
+                required
+                className="w-full outline-none text-[#1C1C1C]"
+              />
+            </div>
+            <button 
+              type="submit"
+              className="bg-brand-blue hover:bg-[#0f6fd6] text-white font-semibold text-sm px-6 py-2.5 rounded-lg shadow-sm transition-colors flex-shrink-0"
+            >
+              Subscribe
+            </button>
+          </form>
+        </div>
+      </section>
+
+      {/* ---------------- 12. FOOTER ---------------- */}
+      <footer className="bg-white border-t border-brand-border pt-12 pb-6">
+        <div className="max-w-[1200px] mx-auto px-4">
+          
+          {/* Main Footer Links */}
+          <div className="grid grid-cols-2 md:grid-cols-7 gap-8 mb-10">
+            
+            {/* Brand Logo & Info */}
+            <div className="col-span-2 space-y-4">
+              <div className="flex items-center gap-2 cursor-pointer">
+                <div className="w-8 h-8 bg-brand-blue rounded-md flex items-center justify-center text-white text-base">
+                  <FaShoppingCart />
+                </div>
+                <span className="text-xl font-bold text-brand-blue tracking-tight">Brand</span>
+              </div>
+              <p className="text-sm text-gray-500 font-medium leading-relaxed max-w-[240px]">
+                Best place to buy products online. Find and connect with the best suppliers instantly.
+              </p>
+              {/* Socials */}
+              <div className="flex items-center gap-3">
+                <a href="#" className="w-8 h-8 rounded-full bg-[#BDC4CD] hover:bg-brand-blue text-white flex items-center justify-center transition-colors">
+                  <FaFacebookF />
+                </a>
+                <a href="#" className="w-8 h-8 rounded-full bg-[#BDC4CD] hover:bg-brand-blue text-white flex items-center justify-center transition-colors">
+                  <FaTwitter />
+                </a>
+                <a href="#" className="w-8 h-8 rounded-full bg-[#BDC4CD] hover:bg-brand-blue text-white flex items-center justify-center transition-colors">
+                  <FaLinkedinIn />
+                </a>
+                <a href="#" className="w-8 h-8 rounded-full bg-[#BDC4CD] hover:bg-brand-blue text-white flex items-center justify-center transition-colors">
+                  <FaInstagram />
+                </a>
+                <a href="#" className="w-8 h-8 rounded-full bg-[#BDC4CD] hover:bg-brand-blue text-white flex items-center justify-center transition-colors">
+                  <FaYoutube />
+                </a>
+              </div>
+            </div>
+
+            {/* Col 1: About */}
+            <div className="col-span-1 space-y-3">
+              <h4 className="text-sm font-semibold text-[#1C1C1C]">About</h4>
+              <ul className="space-y-2 text-sm text-gray-500 font-medium">
+                <li><a href="#" className="hover:text-brand-blue">About Us</a></li>
+                <li><a href="#" className="hover:text-brand-blue">Find store</a></li>
+                <li><a href="#" className="hover:text-brand-blue">Categories</a></li>
+                <li><a href="#" className="hover:text-brand-blue">Blogs</a></li>
+              </ul>
+            </div>
+
+            {/* Col 2: Partnership */}
+            <div className="col-span-1 space-y-3">
+              <h4 className="text-sm font-semibold text-[#1C1C1C]">Partnership</h4>
+              <ul className="space-y-2 text-sm text-gray-500 font-medium">
+                <li><a href="#" className="hover:text-brand-blue">About Us</a></li>
+                <li><a href="#" className="hover:text-brand-blue">Find store</a></li>
+                <li><a href="#" className="hover:text-brand-blue">Categories</a></li>
+                <li><a href="#" className="hover:text-brand-blue">Blogs</a></li>
+              </ul>
+            </div>
+
+            {/* Col 3: Information */}
+            <div className="col-span-1 space-y-3">
+              <h4 className="text-sm font-semibold text-[#1C1C1C]">Information</h4>
+              <ul className="space-y-2 text-sm text-gray-500 font-medium">
+                <li><a href="#" className="hover:text-brand-blue">Help Center</a></li>
+                <li><a href="#" className="hover:text-brand-blue">Money Refund</a></li>
+                <li><a href="#" className="hover:text-brand-blue">Shipping</a></li>
+                <li><a href="#" className="hover:text-brand-blue">Contact Us</a></li>
+              </ul>
+            </div>
+
+            {/* Col 4: For users */}
+            <div className="col-span-1 space-y-3">
+              <h4 className="text-sm font-semibold text-[#1C1C1C]">For users</h4>
+              <ul className="space-y-2 text-sm text-gray-500 font-medium">
+                <li><a href="#" className="hover:text-brand-blue">Login</a></li>
+                <li><a href="#" className="hover:text-brand-blue">Register</a></li>
+                <li><a href="#" className="hover:text-brand-blue">Settings</a></li>
+                <li><a href="#" className="hover:text-brand-blue">My Orders</a></li>
+              </ul>
+            </div>
+
+            {/* Col 5: Get App */}
+            <div className="col-span-1 space-y-3">
+              <h4 className="text-sm font-semibold text-[#1C1C1C]">Get app</h4>
+              <div className="space-y-2">
+                <a href="#" className="flex items-center gap-2 bg-[#1C1C1C] text-white px-3 py-1.5 rounded-md hover:bg-gray-800 transition-colors max-w-[130px]">
+                  <FaApple className="text-xl" />
+                  <div className="text-left">
+                    <span className="block text-[8px] opacity-75 leading-none">Download on the</span>
+                    <span className="block text-xs font-semibold leading-none mt-0.5">App Store</span>
+                  </div>
+                </a>
+                <a href="#" className="flex items-center gap-2 bg-[#1C1C1C] text-white px-3 py-1.5 rounded-md hover:bg-gray-800 transition-colors max-w-[130px]">
+                  <FaPlay className="text-lg" />
+                  <div className="text-left">
+                    <span className="block text-[8px] opacity-75 leading-none">GET IT ON</span>
+                    <span className="block text-xs font-semibold leading-none mt-0.5">Google Play</span>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Bottom copyright & settings bar */}
+          <div className="border-t border-brand-border pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <span className="text-sm text-gray-500 font-medium">
+              © 2026 Brand. All rights reserved.
+            </span>
+            <div className="flex items-center gap-2 text-sm text-gray-500 font-medium cursor-pointer hover:text-brand-blue transition-colors">
+              <FaGlobe />
+              <span>English (USD)</span>
+            </div>
+          </div>
+
+        </div>
+      </footer>
+
+    </div>
+  );
+}
+
+export default App;
