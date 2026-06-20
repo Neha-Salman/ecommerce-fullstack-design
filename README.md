@@ -5,8 +5,8 @@ A fully responsive full-stack e-commerce web application built as part of a stru
 ---
 
 ## 🌐 Live Demo
-- **Frontend:** (Vercel URL — add after deployment)
-- **Backend API:** (Render URL — add after deployment)
+- **Frontend:** https://ecommerce-fullstack-design-pi-tawny.vercel.app/
+- **Backend API:** https://ecommerce-fullstack-design-1yg0.onrender.com
 
 ---
 
